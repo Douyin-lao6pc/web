@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>网站开发中</title>
+    <!-- 自动跳转到目标页面（3秒后跳转，可修改content里的数字） -->
+    <meta http-equiv="refresh" content="3; url=/website/index.html">
     <style>
         * {
             margin: 0;
@@ -44,10 +46,18 @@
             font-size: 16px;
             display: none; /* 默认隐藏 */
         }
+        /* 新增跳转提示样式 */
+        .redirect-tip {
+            margin-top: 20px;
+            color: #666;
+            font-size: 16px;
+        }
     </style>
 </head>
 <body>
     <div class="notice">此网站正在开发</div>
+    <!-- 新增跳转提示 -->
+    <div class="redirect-tip">将在3秒后跳转到目标页面...<a href="/website/index.html">立即跳转</a></div>
     <button class="close-btn" onclick="closeTab()">关闭</button>
     <div class="browser-tip">温馨提示：您使用的浏览器内核版本较老，可能显示不正常，使用新版浏览器内核打开试试吧</div>
 
