@@ -2,7 +2,9 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
     <title>抖音-老六说电脑的官网</title>
     <link rel="icon" href="icon.ico" type="image/x-icon">
     <style>
@@ -10,392 +12,734 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+            font-family: "微软雅黑", sans-serif;
         }
-        
+
         body {
+            /* 背景图片 - 移除渐变遮罩，显示原图 */
             background: url('background.jpg') no-repeat center center fixed;
             background-size: cover;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding-top: 80px;
-            padding-bottom: 40px;
             position: relative;
+            min-height: 300vh;
+            overflow-x: hidden;
+            /* 增加文字颜色对比度，适配原图背景 */
+            color: #fff;
         }
-        
-        /* 水印样式 */
-        .watermark {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            color: rgba(80, 80, 80, 0.7);
-            font-size: 18px;
-            z-index: 999;
-            pointer-events: none;
-            transform: rotate(-15deg);
-            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
-        }
-        
-        /* 顶部状态栏 */
-        .status-bar {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 40px;
-            background-color: rgba(0, 0, 0, 0.8);
-            color: white;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0 20px;
-            z-index: 1000;
-            font-size: 14px;
-        }
-        
-        /* 浏览器信息区域 */
-        .browser-info {
-            display: flex;
-            align-items: center;
-        }
-        
-        /* 时间区域 */
-        .time-section {
-            display: flex;
-            align-items: center;
-        }
-        
-        /* 分割线 */
-        .separator {
-            margin: 0 10px;
-            color: rgba(255, 255, 255, 0.5);
-        }
-        
-        /* 主标题 */
-        .main-title {
-            font-size: 48px;
-            font-weight: bold;
-            color: white;
-            text-align: center;
-            margin-bottom: 40px;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-        }
-        
-        /* 毛玻璃效果容器 */
-        .glass-container {
-            background: rgba(255, 255, 255, 0.2);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border-radius: 12px;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            padding: 30px;
-            margin-bottom: 30px;
-            width: 90%;
-            max-width: 900px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-        }
-        
-        /* 文字区域 */
-        .text-area {
-            color: white;
-            line-height: 1.6;
-            font-size: 18px;
-            min-height: 100px;
-            width: 100%;
-            white-space: pre-wrap;
-            word-wrap: break-word;
-        }
-        
-        /* 按钮容器 */
-        .buttons-container {
-            display: grid;
-            grid-template-columns: repeat(6, 1fr);
-            gap: 15px;
-            margin-top: 20px;
-        }
-        
-        /* 按钮样式 */
-        .glass-button {
-            background: rgba(255, 255, 255, 0.15);
-            backdrop-filter: blur(5px);
-            -webkit-backdrop-filter: blur(5px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 8px;
-            color: white;
-            padding: 12px 15px;
-            font-size: 16px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-align: center;
-        }
-        
-        .glass-button:hover {
-            background: rgba(255, 255, 255, 0.25);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-        }
-        
-        /* 浏览器兼容性提示 */
-        .browser-warning {
-            display: none;
+        /* 移除背景遮罩层 */
+        /* 遮罩层 - 适配移动端磨砂 */
+        .overlay {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.8);
-            z-index: 2000;
-            color: white;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
-            text-align: center;
-            padding: 20px;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            background: rgba(0, 0, 0, 0.2);
+            z-index: 998;
+            display: block; /* 初始显示 */
         }
-        
-        .warning-content {
-            background: rgba(255, 0, 0, 0.2);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
+        /* 公告弹窗 - 响应式尺寸 + 移动端适配 */
+        .notice-window {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: clamp(300px, 80vw, 600px); /* 响应式宽度 */
+            height: clamp(300px, 70vh, 450px); /* 响应式高度 */
+            background: rgba(28, 28, 30, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.15);
             border-radius: 12px;
-            padding: 30px;
-            max-width: 500px;
-            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            color: #fff;
+            z-index: 999;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            overflow: hidden;
+            display: block; /* 初始显示 */
         }
-        
-        .warning-content h2 {
-            margin-bottom: 15px;
-            color: #ff6b6b;
+
+        .notice-header {
+            padding: 12px 16px; /* 移动端缩小内边距 */
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(0, 0, 0, 0.08);
         }
-        
-        /* 响应式设计 */
-        @media (max-width: 1024px) {
-            .buttons-container {
-                grid-template-columns: repeat(4, 1fr);
-            }
+
+        .notice-browser {
+            font-size: 12px; /* 移动端缩小字体 */
+            opacity: 0.9;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 200px;
         }
-        
-        @media (max-width: 768px) {
-            .buttons-container {
-                grid-template-columns: repeat(3, 1fr);
+
+        .notice-time {
+            font-size: 12px;
+            opacity: 0.9;
+        }
+
+        .notice-title {
+            font-size: 16px;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+        }
+
+        .notice-content {
+            padding: 16px;
+            min-height: calc(100% - 100px);
+            background: rgba(0, 0, 0, 0.05);
+        }
+
+        .notice-footer {
+            padding: 12px 16px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: right;
+            background: rgba(0, 0, 0, 0.08);
+        }
+
+        .notice-close {
+            padding: 6px 16px; /* 移动端缩小按钮 */
+            background: rgba(0, 120, 212, 0.9);
+            border: none;
+            border-radius: 8px;
+            color: #fff;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s ease;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+        }
+
+            .notice-close:hover, .notice-close:active {
+                background: rgba(0, 99, 177, 0.9);
+                box-shadow: 0 2px 8px rgba(0, 120, 212, 0.4);
             }
-            
-            .main-title {
-                font-size: 36px;
+        /* 头部区域 - 响应式 + 移动端适配 */
+        .header {
+            position: sticky;
+            top: 0;
+            z-index: 900;
+            padding: 10px 16px; /* 移动端缩小内边距 */
+            border-bottom: 2px solid rgba(0, 0, 0, 0.08);
+            display: flex;
+            flex-wrap: wrap; /* 移动端换行 */
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px; /* 移动端间距 */
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border-radius: 0 0 12px 12px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+        }
+
+        .header-title {
+            font-size: clamp(14px, 4vw, 18px); /* 响应式字体 */
+            font-weight: 600;
+            color: #1a1a1a;
+        }
+
+        .header-time {
+            font-size: clamp(12px, 3vw, 14px);
+            color: #444;
+            white-space: nowrap;
+        }
+        /* 头部按钮容器 - 移动端适配 */
+        .header-btn-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px; /* 按钮间距 */
+        }
+        /* 头部按钮样式 - 响应式 */
+        .header-btn {
+            padding: 6px 12px; /* 移动端缩小按钮 */
+            margin: 0; /* 重置margin */
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            background: rgba(255, 255, 255, 0.8);
+            cursor: pointer;
+            touch-action: manipulation; /* 优化移动端触摸 */
+            border-radius: 8px;
+            transition: all 0.2s ease;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            font-size: clamp(12px, 3vw, 14px);
+        }
+
+            .header-btn:hover, .header-btn:active {
+                background: rgba(245, 245, 245, 0.8);
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
             }
-            
-            .glass-container {
+
+            .header-btn.green {
+                background: rgba(0, 255, 0, 0.8);
+                border-color: rgba(0, 200, 0, 0.2);
+                color: #000;
+            }
+        /* 主体区域 - 响应式布局 */
+        .main {
+            display: flex;
+            flex-direction: column; /* 移动端纵向排列 */
+            padding: 16px; /* 移动端缩小内边距 */
+            gap: 20px;
+            margin: 0 auto;
+            max-width: 1200px;
+        }
+        /* 媒体查询 - 桌面端恢复横向布局 */
+        @media (min-width: 768px) {
+            .main {
+                flex-direction: row;
                 padding: 20px;
+                gap: 25px;
             }
-            
-            .status-bar {
-                font-size: 12px;
-                padding: 0 10px;
+
+            .notice-browser {
+                max-width: 300px;
             }
         }
-        
-        @media (max-width: 480px) {
-            .buttons-container {
-                grid-template-columns: repeat(2, 1fr);
+        /* 个人信息侧边栏 - 响应式高度+宽度 */
+        .sidebar {
+            width: 100%; /* 移动端全屏宽度 */
+            max-width: 220px; /* 桌面端最大宽度 */
+            height: clamp(300px, 50vh, 470px); /* 响应式高度 */
+            margin: 0 auto; /* 移动端居中 */
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            border-radius: 12px;
+            padding: 15px;
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            background: rgba(255, 255, 255, 0.75);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        }
+
+        @media (min-width: 768px) {
+            .sidebar {
+                margin: 0; /* 桌面端取消居中 */
+                height: 470px; /* 桌面端固定高度 */
             }
-            
-            .main-title {
-                font-size: 28px;
+        }
+        /* 头像框样式 - 显示icon.ico */
+        .avatar-frame {
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            padding: 15px; /* 调整内边距适配图片 */
+            margin-bottom: 15px;
+            text-align: center;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.85);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 120px; /* 固定头像框高度 */
+        }
+        /* 头像图片样式 */
+        .avatar-img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain; /* 保持图片比例 */
+        }
+        /* 抖音昵称样式 - 加粗放大 */
+        .sidebar-text.nickname {
+            font-size: clamp(16px, 4vw, 18px); /* 放大字体 */
+            font-weight: 700; /* 加粗 */
+            color: #222; /* 加深颜色增强对比 */
+            margin-bottom: 15px; /* 增加间距 */
+        }
+        /* 团队名称样式 - 保持原有 */
+        .sidebar-text.team {
+            font-size: clamp(12px, 3vw, 14px);
+            color: #333;
+            margin-bottom: 12px;
+        }
+        /* 简介内容区 - 响应式高度 */
+        .content {
+            flex: 1;
+            width: 100%;
+            height: clamp(300px, 50vh, 470px); /* 响应式高度 */
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            border-radius: 12px;
+            padding: 20px; /* 移动端缩小内边距 */
+            text-align: center;
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            background: rgba(255, 255, 255, 0.75);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        @media (min-width: 768px) {
+            .content {
+                height: 470px; /* 桌面端固定高度 */
+                padding: 40px;
             }
-            
-            .status-bar {
-                flex-direction: column;
-                height: auto;
-                padding: 5px 10px;
+        }
+        /* 个人简介文本样式 - 优化排版 */
+        .intro-text {
+            font-size: clamp(14px, 3vw, 16px);
+            color: #333;
+            line-height: 1.8;
+            max-width: 800px;
+            text-align: left;
+        }
+        /* 功能按钮栏 - 响应式 + 居中显示 */
+        .btn-bar {
+            padding: 15px 16px;
+            margin: 0 auto;
+            max-width: 1200px;
+            display: flex;
+            flex-wrap: wrap; /* 按钮自动换行 */
+            gap: 8px; /* 按钮间距 */
+            justify-content: center; /* 居中显示 */
+        }
+
+            .btn-bar button {
+                padding: 6px 12px; /* 移动端缩小按钮 */
+                flex: 0 0 auto; /* 取消均分，保持按钮自适应宽度 */
+                min-width: 100px; /* 最小宽度 */
+                border: 1px solid rgba(0, 0, 0, 0.1);
+                background: rgba(255, 255, 255, 0.8);
+                cursor: pointer;
+                touch-action: manipulation;
+                border-radius: 8px;
+                transition: all 0.2s ease;
+                backdrop-filter: blur(8px);
+                -webkit-backdrop-filter: blur(8px);
+                font-size: clamp(12px, 3vw, 14px);
             }
-            
-            .separator {
-                display: none;
+
+        @media (min-width: 768px) {
+            .btn-bar button {
+                padding: 8px 16px;
+                min-width: 120px;
             }
+        }
+
+        .btn-bar button:hover, .btn-bar button:active {
+            background: rgba(245, 245, 245, 0.8);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        /* 底部更多按钮区域 - 响应式 */
+        .bottom-btns {
+            padding: 20px 16px;
+            margin: clamp(100px, 30vh, 400px) auto 20px;
+            max-width: 1200px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            border-radius: 12px;
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            background: rgba(255, 255, 255, 0.7);
+            scroll-margin-top: 100px; /* 适配移动端头部高度 */
+            justify-content: center; /* 底部按钮也居中 */
+        }
+
+            .bottom-btns button {
+                padding: 6px 12px; /* 移动端缩小按钮 */
+                flex: 0 0 auto; /* 取消均分 */
+                min-width: 80px; /* 最小宽度 */
+                border: 1px solid rgba(0, 0, 0, 0.15);
+                background: rgba(255, 255, 255, 0.8);
+                cursor: pointer;
+                touch-action: manipulation;
+                border-radius: 8px;
+                transition: all 0.2s ease;
+                backdrop-filter: blur(8px);
+                -webkit-backdrop-filter: blur(8px);
+                font-size: clamp(12px, 3vw, 14px);
+            }
+
+        @media (min-width: 768px) {
+            .bottom-btns button {
+                padding: 8px 16px;
+                min-width: 100px;
+            }
+        }
+
+        .bottom-btns button:hover, .bottom-btns button:active {
+            background: rgba(245, 245, 245, 0.8);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        /* 水印 - 移动端适配 */
+        .watermark {
+            position: fixed;
+            bottom: 15px;
+            right: 15px;
+            font-size: clamp(10px, 2vw, 14px);
+            color: rgba(0, 0, 0, 0.6);
+            user-select: none;
+            pointer-events: none;
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            padding: 4px 8px;
+            border-radius: 4px;
+            background: rgba(255, 255, 255, 0.5);
+        }
+        /* 新增：返回顶部按钮 */
+        .back-to-top {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            padding: 10px 15px;
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
+            cursor: pointer;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            font-size: 16px;
+            color: #333;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            z-index: 999;
+            /* 默认隐藏 */
+            opacity: 0;
+            visibility: hidden;
+        }
+            /* 滚动后显示按钮 */
+            .back-to-top.show {
+                opacity: 1;
+                visibility: visible;
+            }
+
+            .back-to-top:hover {
+                background: rgba(245, 245, 245, 0.9);
+                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+            }
+        /* 优化移动端滚动 */
+        html {
+            scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch; /* 移动端弹性滚动 */
+        }
+        /* 禁用移动端双击缩放 */
+        * {
+            touch-action: pan-y pinch-zoom;
         }
     </style>
 </head>
 <body>
-    <!-- 顶部状态栏 -->
-    <div class="status-bar">
-        <div class="browser-info" id="browser-info">浏览器信息加载中...</div>
-        <div class="time-section">
-            <span class="separator">|</span>
-            <span id="current-time">时间加载中...</span>
+    <!-- 遮罩层 -->
+    <div class="overlay" id="overlay"></div>
+
+    <!-- 公告弹窗 -->
+    <div class="notice-window" id="noticeWindow">
+        <div class="notice-header">
+            <div class="notice-browser" id="browserInfo"></div>
+            <div class="notice-title">公告栏</div>
+            <div class="notice-time" id="noticeTime"></div>
+        </div>
+        <div class="notice-content">
+            <!-- 可自定义公告内容 -->
+            欢迎访问我的新官网！
+        </div>
+        <div class="notice-footer">
+            <button class="notice-close" id="closeNotice">关闭</button>
         </div>
     </div>
-    
-    <!-- 主标题 -->
-    <h1 class="main-title">抖音-老六说电脑的官网</h1>
-    
-    <!-- 文字区域毛玻璃容器 -->
-    <div class="glass-container">
-        <div class="text-area" contenteditable="true">
-公告栏：2025年我们团队的收官之作-lao6-PE 1.2 已发布，欢迎大家来体验
-昨日官网访问量(由Google Analytics采集)：暂时不公布
-网页背景：Xiaomi SU7 Ultra
+
+    <!-- 头部（固定顶部） -->
+    <div class="header">
+        <div class="header-title">抖音-老六说电脑的官网</div>
+        <div class="header-time" id="pageTime"></div>
+        <div class="header-btn-group">
+            <button class="header-btn" id="showNotice">公告栏</button>
+            <button class="header-btn" id="moreBtn">更多</button>
+            <button class="header-btn green" onclick="window.open('https://douyin-lao6pc.github.io/web/oldindex.html','_black')">返回旧版官网</button>
         </div>
     </div>
-    
-    <!-- 按钮区域毛玻璃容器 -->
-    <div class="glass-container">
-        <div class="buttons-container">
-            <button class="glass-button" onclick="window.location.href='https://douyin-lao6pc.github.io/guanwang/lianxiwomen.html'">联系我们</button>
-            <!-- 请将 # 替换为实际链接 -->
-            <button class="glass-button" onclick="window.location.href='https://wj.qq.com/s2/24629300/1152/'">官网内容建议/反馈</button>
-            <!-- 请将 # 替换为实际链接 -->
-            <button class="glass-button" onclick="window.location.href='https://douyin-lao6pc.github.io/guanwang/dongtai.html'">个人和团队动态</button>
-            <!-- 请将 # 替换为实际链接 -->
-            <button class="glass-button" onclick="window.location.href='https://www.123865.com/s/AH3rVv-a9ARh?pwd=k1y0#'">资源分享</button>
-            <!-- 请将 # 替换为实际链接 -->
-            <button class="glass-button" onclick="window.location.href='https://www.lao6devteam.com/'">访问团队官网(英文,需翻墙)</button>
-            <!-- 请将 # 替换为实际链接 -->
-            <button class="glass-button" onclick="window.location.href='https://www.lao6os.com/download'">访问lao6 OS下载官网(英文,需翻墙)</button>
-            <!-- 请将 # 替换为实际链接 -->
-            <button class="glass-button" onclick="window.location.href='https://douyin-lao6pc.github.io/guanwang/app.html'">本人曾参与开发的软件和项目</button>
-            <!-- 请将 # 替换为实际链接 -->
-            <button class="glass-button" onclick="window.location.href='https://www.123865.com/s/AH3rVv-y9ARh?pwd=BswF#'">照片分享(我认为拍得比较好的)</button>
-            <!-- 请将 # 替换为实际链接 -->
-            <button class="glass-button" onclick="window.location.href='https://douyin-lao6pc.github.io/guanwang/dlapp.html'">下载我们的软件</button>
-            <!-- 请将 # 替换为实际链接 -->
-            <button class="glass-button" onclick="window.location.href='https://docs.qq.com/sheet/DVVJiVmhIR3VYSk9v?tab=000001'">电脑维修/系统定制</button>
-            <!-- 请将 # 替换为实际链接 -->
-            <button class="glass-button" onclick="window.location.href='#'">暂无内容</button>
-            <!-- 请将 # 替换为实际链接 -->
-            <button class="glass-button" onclick="window.location.href='#'">暂无内容</button>
-            <!-- 请将 # 替换为实际链接 -->
-            <button class="glass-button" onclick="window.location.href='#'">暂无内容</button>
-            <!-- 请将 # 替换为实际链接 -->
-            <button class="glass-button" onclick="window.location.href='#'">暂无内容</button>
-            <!-- 请将 # 替换为实际链接 -->
-            <button class="glass-button" onclick="window.location.href='#'">暂无内容</button>
-            <!-- 请将 # 替换为实际链接 -->
-            <button class="glass-button" onclick="window.location.href='#'">暂无内容</button>
-            <!-- 请将 # 替换为实际链接 -->
-            <button class="glass-button" onclick="window.location.href='#'">暂无内容</button>
-            <!-- 请将 # 替换为实际链接 -->
-            <button class="glass-button" onclick="window.location.href='#'">暂无内容</button>
-            <!-- 请将 # 替换为实际链接 -->
-            <button class="glass-button" onclick="window.location.href='#'">暂无内容</button>
-            <!-- 请将 # 替换为实际链接 -->
-            <button class="glass-button" onclick="window.location.href='#'">暂无内容</button>
-            <!-- 请将 # 替换为实际链接 -->
-            <button class="glass-button" onclick="window.location.href='#'">暂无内容</button>
-            <!-- 请将 # 替换为实际链接 -->
-            <button class="glass-button" onclick="window.location.href='#'">暂无内容</button>
-            <!-- 请将 # 替换为实际链接 -->
-            <button class="glass-button" onclick="window.location.href='#'">暂无内容</button>
-            <!-- 请将 # 替换为实际链接 -->
-            <button class="glass-button" onclick="window.location.href='#'">暂无内容</button>
-            <!-- 请将 # 替换为实际链接 -->
-            <button class="glass-button" onclick="window.location.href='#'">暂无内容</button>
-            <!-- 请将 # 替换为实际链接 -->
-            <button class="glass-button" onclick="window.location.href='#'">暂无内容</button>
-            <!-- 请将 # 替换为实际链接 -->
-            <button class="glass-button" onclick="window.location.href='#'">暂无内容</button>
-            <!-- 请将 # 替换为实际链接 -->
-            <button class="glass-button" onclick="window.location.href='#'">暂无内容</button>
-            <!-- 请将 # 替换为实际链接 -->
-            <button class="glass-button" onclick="window.location.href='#'">暂无内容</button>
-            <!-- 请将 # 替换为实际链接 -->
-            <button class="glass-button" onclick="window.location.href='#'">暂无内容</button>
-            <!-- 请将 # 替换为实际链接 -->
-            <button class="glass-button" onclick="window.location.href='https://douyin-lao6pc.github.io/yunpan/index.html'">私有文件下载</button>
-            <!-- 请将 # 替换为实际链接 -->
+
+    <!-- 主体（个人信息+简介区域） -->
+    <div class="main">
+        <div class="sidebar">
+            <!-- 头像框 -->
+            <div class="avatar-frame">
+                <img src="icon.ico" alt="头像" class="avatar-img">
+            </div>
+            <!-- 抖音昵称 - 加粗放大 -->
+            <div class="sidebar-text nickname">抖音-老六说电脑</div>
+            <!-- 团队名称 - 保持原有样式 -->
+            <div class="sidebar-text team">lao6 OS开发团队</div>
+        </div>
+        <div class="content">
+            <!-- 个人简介 -->
+            <div class="intro-text">
+                抖音-老六说电脑，兴趣爱好为骨，热爱为魂，偏爱探索与 DIY 的乐趣，执着于把创意落地成作品。从项目开发到优化修改，从功能定制到强大，始终保持初心，享受创造的乐趣，坚守热爱的方向，只做独一无二的人，在电脑领域中探索，开发软件和Windows定制系统。
+            </div>
         </div>
     </div>
-    
-    <!-- 浏览器兼容性警告 -->
-    <div class="browser-warning" id="browser-warning">
-        <div class="warning-content">
-            <h2>浏览器兼容性提示</h2>
-            <p>您的浏览器内核过老，可能无法完全加载该页面上的内容。</p>
-            <p>建议更新到最新版本的 Microsoft Edge 或 Google Chrome 以获得最佳体验。</p>
-            <button class="glass-button" style="margin-top: 20px;" onclick="document.getElementById('browser-warning').style.display='none'">我知道了</button>
-        </div>
+
+    <!-- 功能按钮栏（紧贴简介）- 已居中 -->
+    <div class="btn-bar">
+        <button onclick="window.location.href='https://douyin-lao6pc.github.io/guanwang/lianxiwomen.html'">联系我们</button>
+        <button onclick="window.location.href='https://douyin-lao6pc.github.io/guanwang/dlapp.html'">下载我们的软件</button>
+        <button onclick="window.location.href='https://douyin-lao6pc.github.io/guanwang/app.html'">团队开发过的项目</button>
+        <button onclick="window.location.href='https://douyin-lao6pc.github.io/guanwang/dongtai.html'">团队动态</button>
+        <button onclick="window.location.href='https://longsstudio.github.io/'">合作伙伴(Longs Studio)</button>
+        <button onclick="window.location.href='https://www.123865.com/s/AH3rVv-a9ARh?pwd=k1y0#'">资源分享</button>
+        <button onclick="window.location.href='https://wj.qq.com/s2/24629300/1152/'">问题反馈</button>
     </div>
-    
+
+    <!-- 底部更多按钮区域（手动编写50个按钮，可自定义标题和链接） -->
+    <div class="bottom-btns" id="moreArea">
+        <!-- 按钮1-10 -->
+        <button onclick="window.location.href='https://www.123865.com/s/AH3rVv-y9ARh?pwd=BswF#'">照片分享(我认为拍得比较好的)</button>
+        <button onclick="window.location.href='https://docs.qq.com/sheet/DVVJiVmhIR3VYSk9v?tab=000001'">电脑维修/系统定制</button>
+        <button onclick="window.location.href='https://www.lao6devteam.com/'">访问团队官网(需要翻墙)</button>
+        <button onclick="window.location.href='https://www.lao6os.com/download'">访问lao6 OS下载官网(需要翻墙)</button>
+        <button onclick="window.location.href='#'">无</button>
+        <button onclick="window.location.href='#'">无</button>
+        <button onclick="window.location.href='#'">无</button>
+        <button onclick="window.location.href='#'">无</button>
+        <button onclick="window.location.href='#'">无</button>
+        <button onclick="window.location.href='#'">无</button>
+
+        <!-- 按钮11-20 -->
+        <button onclick="window.location.href='#'">无</button>
+        <button onclick="window.location.href='#'">无</button>
+        <button onclick="window.location.href='#'">无</button>
+        <button onclick="window.location.href='#'">无</button>
+        <button onclick="window.location.href='#'">无</button>
+        <button onclick="window.location.href='#'">无</button>
+        <button onclick="window.location.href='#'">无</button>
+        <button onclick="window.location.href='#'">无</button>
+        <button onclick="window.location.href='#'">无</button>
+        <button onclick="window.location.href='#'">无</button>
+
+        <!-- 按钮21-30 -->
+        <button onclick="window.location.href='#'">无</button>
+        <button onclick="window.location.href='#'">无</button>
+        <button onclick="window.location.href='#'">无</button>
+        <button onclick="window.location.href='#'">无</button>
+        <button onclick="window.location.href='#'">无</button>
+        <button onclick="window.location.href='#'">无</button>
+        <button onclick="window.location.href='#'">无</button>
+        <button onclick="window.location.href='#'">无</button>
+        <button onclick="window.location.href='#'">无</button>
+        <button onclick="window.location.href='#'">无</button>
+
+        <!-- 按钮31-40 -->
+        <button onclick="window.location.href='#'">无</button>
+        <button onclick="window.location.href='#'">无</button>
+        <button onclick="window.location.href='#'">无</button>
+        <button onclick="window.location.href='#'">无</button>
+        <button onclick="window.location.href='#'">无</button>
+        <button onclick="window.location.href='#'">无</button>
+        <button onclick="window.location.href='#'">无</button>
+        <button onclick="window.location.href='#'">无</button>
+        <button onclick="window.location.href='#'">无</button>
+        <button onclick="window.location.href='#'">无</button>
+
+        <!-- 按钮41-50 -->
+        <button onclick="window.location.href='#'">无</button>
+        <button onclick="window.location.href='#'">无</button>
+        <button onclick="window.location.href='#'">无</button>
+        <button onclick="window.location.href='#'">无</button>
+        <button onclick="window.location.href='#'">无</button>
+        <button onclick="window.location.href='#'">无</button>
+        <button onclick="window.location.href='#'">无</button>
+        <button onclick="window.location.href='#'">无</button>
+        <button onclick="window.location.href='#'">无</button>
+        <button onclick="window.location.href='#'">无</button>
+    </div>
+
     <!-- 水印 -->
-    <div class="watermark">©该网站归lao6 OS开发团队 版权所有。</div>
-    
+    <div class="watermark">此网页由抖音-老六说电脑 & lao6 OS开发团队 制作</div>
+
+    <!-- 新增：返回顶部按钮 -->
+    <button class="back-to-top" id="backToTop">返回顶部</button>
+
     <script>
-        // 更新时间
-        function updateTime() {
-            const now = new Date();
-            const timeString = now.toLocaleString('zh-CN', {
-                year: 'numeric',
-                month: '2-digit',
-                day: '2-digit',
-                hour: '2-digit',
-                minute: '2-digit',
-                second: '2-digit',
-                hour12: false
-            });
-            document.getElementById('current-time').textContent = timeString;
-        }
-        
-        // 初始化时间并设置定时器
-        updateTime();
-        setInterval(updateTime, 1000);
-        
-        // 获取浏览器信息
+        // 1. 精准识别浏览器（含完整内核版本号）
         function getBrowserInfo() {
             const userAgent = navigator.userAgent;
-            let browserName, engine, engineVersion;
-            
-            // 检测浏览器类型和版本
-            if (userAgent.indexOf("Edg") > -1) {
-                browserName = "Microsoft Edge";
-                engine = "Microsoft WebView 2";
-                engineVersion = userAgent.match(/Edg\/([0-9.]+)/)[1];
-            } else if (userAgent.indexOf("Chrome") > -1) {
-                browserName = "Google Chrome";
-                engine = "Blink";
-                engineVersion = userAgent.match(/Chrome\/([0-9.]+)/)[1];
-            } else if (userAgent.indexOf("Firefox") > -1) {
-                browserName = "Mozilla Firefox";
-                engine = "Gecko";
-                engineVersion = userAgent.match(/Firefox\/([0-9.]+)/)[1];
-            } else if (userAgent.indexOf("Safari") > -1) {
-                browserName = "Safari";
-                engine = "WebKit";
-                engineVersion = userAgent.match(/Version\/([0-9.]+)/)[1];
-            } else {
-                browserName = "未知浏览器";
-                engine = "未知内核";
-                engineVersion = "未知版本";
+            const uaLower = userAgent.toLowerCase();
+            // 移动端判断
+            const isMobile = /android|iphone|ipad|ipod|webos|blackberry|iemobile|opera mini/i.test(uaLower);
+            const deviceType = isMobile ? '移动端' : 'PC桌面端';
+
+            // 提取完整版本号的通用函数
+            const getFullVersion = (pattern) => {
+                const match = userAgent.match(pattern);
+                return match && match[1] ? match[1] : '未知版本';
+            };
+
+            // Edge浏览器精准识别（优先级最高）
+            if (uaLower.includes('edg/') || uaLower.includes('edge/')) {
+                const fullVersion = getFullVersion(/Edg\/([\d.]+)/) || getFullVersion(/Edge\/([\d.]+)/);
+                return `${deviceType} Microsoft Edge (内核Blink ${fullVersion})`;
             }
-            
-            // 格式化浏览器信息显示
-            document.getElementById('browser-info').innerHTML = 
-                `你正在使用的浏览器：${browserName} 内核：${engine} 内核版本：${engineVersion}`;
-            
-            // 检查浏览器版本是否过旧
-            if (browserName === "Google Chrome" && parseInt(engineVersion) < 70) {
-                document.getElementById('browser-warning').style.display = 'flex';
-            } else if (browserName === "Microsoft Edge" && parseInt(engineVersion) < 79) {
-                document.getElementById('browser-warning').style.display = 'flex';
+            // Chrome浏览器（排除Edge）
+            else if (uaLower.includes('chrome/') && !uaLower.includes('edg/')) {
+                const fullVersion = getFullVersion(/Chrome\/([\d.]+)/);
+                return `${deviceType} Google Chrome (内核Blink ${fullVersion})`;
+            }
+            // 360安全浏览器
+            else if (uaLower.includes('360se')) {
+                // 360浏览器提取Chrome内核版本
+                const chromeVersion = getFullVersion(/Chrome\/([\d.]+)/);
+                return `${deviceType} 360安全浏览器 (内核Trident/Blink ${chromeVersion || '未知版本'})`;
+            }
+            // IE浏览器
+            else if (uaLower.includes('msie') || uaLower.includes('trident')) {
+                let fullVersion = '未知版本';
+                if (uaLower.includes('msie')) {
+                    fullVersion = getFullVersion(/MSIE ([\d.]+)/);
+                } else if (uaLower.includes('trident')) {
+                    fullVersion = getFullVersion(/rv:([\d.]+)/);
+                }
+                return `${deviceType} Internet Explorer (内核Trident ${fullVersion})`;
+            }
+            // Firefox浏览器
+            else if (uaLower.includes('firefox')) {
+                const fullVersion = getFullVersion(/Firefox\/([\d.]+)/);
+                return `${deviceType} 火狐浏览器 (内核Gecko ${fullVersion})`;
+            }
+            // Safari浏览器（排除Chrome）
+            else if (uaLower.includes('safari') && !uaLower.includes('chrome')) {
+                const webkitVersion = getFullVersion(/AppleWebKit\/([\d.]+)/);
+                return `${deviceType} Safari (内核WebKit ${webkitVersion})`;
+            }
+            // 移动端微信内置浏览器
+            else if (uaLower.includes('micromessenger')) {
+                const webkitVersion = getFullVersion(/AppleWebKit\/([\d.]+)/) || getFullVersion(/Chrome\/([\d.]+)/);
+                return `${deviceType} 微信内置浏览器 (内核WebKit/Blink ${webkitVersion})`;
+            }
+            // 移动端UC浏览器
+            else if (uaLower.includes('ucbrowser')) {
+                const ucVersion = getFullVersion(/UCBrowser\/([\d.]+)/);
+                return `${deviceType} UC浏览器 (内核WebKit/Blink ${ucVersion})`;
+            }
+            // 移动端QQ浏览器
+            else if (uaLower.includes('qqbrowser')) {
+                const qqVersion = getFullVersion(/QQBrowser\/([\d.]+)/) || getFullVersion(/Chrome\/([\d.]+)/);
+                return `${deviceType} QQ浏览器 (内核WebKit/Blink ${qqVersion})`;
+            }
+            // 其他移动端浏览器
+            else if (isMobile) {
+                const coreVersion = getFullVersion(/Chrome\/([\d.]+)/) || getFullVersion(/AppleWebKit\/([\d.]+)/) || '未知版本';
+                return `${deviceType} 未知浏览器 (内核移动端通用 ${coreVersion})`;
+            }
+            // 桌面端其他浏览器
+            else {
+                const coreVersion = getFullVersion(/Chrome\/([\d.]+)/) || '未知版本';
+                return `${deviceType} 未知浏览器 (内核Blink ${coreVersion})`;
             }
         }
-        
-        // 页面加载完成后执行
-        window.onload = function() {
-            getBrowserInfo();
-            
-            // 检查是否支持backdrop-filter属性（毛玻璃效果）
-            if (!CSS.supports('backdrop-filter', 'blur(10px)') && 
-                !CSS.supports('-webkit-backdrop-filter', 'blur(10px)')) {
-                document.getElementById('browser-warning').style.display = 'flex';
-            }
-        };
-        
-        // 自动调整文字区域容器高度
-        document.querySelector('.text-area').addEventListener('input', function() {
-            this.style.height = 'auto';
-            this.style.height = (this.scrollHeight) + 'px';
+
+        // 2. 更新实时时间（格式：年月日时分秒）
+        function updateTime() {
+            const now = new Date();
+            // 补零函数
+            const padZero = (num) => num.toString().padStart(2, '0');
+
+            // 组装年月日时分秒格式
+            const year = now.getFullYear();
+            const month = padZero(now.getMonth() + 1);
+            const day = padZero(now.getDate());
+            const hour = padZero(now.getHours());
+            const minute = padZero(now.getMinutes());
+            const second = padZero(now.getSeconds());
+
+            const timeStr = `${year}年${month}月${day}日 ${hour}:${minute}:${second}`;
+
+            // 更新显示（头部和公告栏都显示完整的年月日时分秒）
+            document.getElementById('noticeTime').textContent = timeStr;
+            document.getElementById('pageTime').textContent = timeStr;
+        }
+
+        // 3. 公告弹窗控制（适配移动端触摸）
+        const overlay = document.getElementById('overlay');
+        const noticeWindow = document.getElementById('noticeWindow');
+        const closeNotice = document.getElementById('closeNotice');
+        const showNotice = document.getElementById('showNotice');
+
+        // 初始显示弹窗（已通过CSS设置display:block）
+        closeNotice.addEventListener('click', () => {
+            overlay.style.display = 'none';
+            noticeWindow.style.display = 'none';
         });
+
+        showNotice.addEventListener('click', () => {
+            overlay.style.display = 'block';
+            noticeWindow.style.display = 'block';
+        });
+
+        // 点击遮罩层关闭弹窗（移动端优化）
+        overlay.addEventListener('click', (e) => {
+            if (e.target === overlay) {
+                overlay.style.display = 'none';
+                noticeWindow.style.display = 'none';
+            }
+        });
+
+        // 4. 更多按钮点击平滑下滑（适配移动端滚动）
+        const moreBtn = document.getElementById('moreBtn');
+        const moreArea = document.getElementById('moreArea');
+
+        moreBtn.addEventListener('click', () => {
+            // 兼容移动端scrollIntoView
+            if ('scrollBehavior' in document.documentElement.style) {
+                moreArea.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            } else {
+                // 低版本浏览器降级方案
+                const top = moreArea.getBoundingClientRect().top + window.pageYOffset - 100;
+                window.scrollTo({
+                    top: top,
+                    behavior: 'auto'
+                });
+            }
+        });
+
+        // 5. 移动端适配优化
+        function initMobileAdapt() {
+            const isMobile = /android|iphone|ipad|ipod/i.test(navigator.userAgent.toLowerCase());
+            if (isMobile) {
+                // 移动端调整底部按钮区域间距
+                const bottomBtns = document.querySelector('.bottom-btns');
+                bottomBtns.style.marginTop = '150px';
+
+                // 优化移动端触摸体验
+                document.body.style.minHeight = '200vh';
+            }
+        }
+
+        // 6. 新增：返回顶部按钮逻辑
+        const backToTopBtn = document.getElementById('backToTop');
+        // 监听滚动事件
+        window.addEventListener('scroll', () => {
+            // 滚动超过300px时显示按钮
+            if (window.scrollY > 300) {
+                backToTopBtn.classList.add('show');
+            } else {
+                backToTopBtn.classList.remove('show');
+            }
+        });
+        // 点击返回顶部
+        backToTopBtn.addEventListener('click', () => {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+
+        // 初始化
+        window.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('browserInfo').textContent = getBrowserInfo();
+            updateTime();
+            setInterval(updateTime, 1000); // 每秒更新时间
+            initMobileAdapt(); // 移除了generateBottomBtns()调用
+        });
+
+        // 窗口大小变化时重新适配
+        window.addEventListener('resize', initMobileAdapt);
     </script>
 </body>
 </html>
